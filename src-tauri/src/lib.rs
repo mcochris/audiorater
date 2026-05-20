@@ -315,7 +315,7 @@ fn get_music_files(path: &str) -> Result<Vec<PathBuf>, String> {
     }
 
     // Sort alphabetically
-    // music_files.sort();
+    music_files.sort();
 
     Ok(music_files)
 }
