@@ -14,7 +14,7 @@
 		"withGlobalTauri": true,
 		"windows": [
 			{
-				"title": "audiorat",
+				"title": "Audiorat",
 				"width": 800,
 				"height": 600
 			}
