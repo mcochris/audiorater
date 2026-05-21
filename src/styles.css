@@ -1,12 +1,14 @@
-body {
+/* body {
 	max-width: 100%
-}
+} */
+
 
 #directory ul {
 	list-style-type: none;
 	columns: 250px;
 }
 
+/*
 html {
 	font-family: sans-serif;
 }
@@ -42,4 +44,4 @@ tr:nth-child(odd) td {
 
 caption {
 	padding: 10px;
-}
+} */

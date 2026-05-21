@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-bs-theme="dark">
 
 <head>
 	<meta charset="UTF-8">
@@ -10,12 +10,38 @@
 </head>
 
 <body>
-	<h1>Audiorat</h1>
-	<input type="button" id="backButton" value="Back">
-	<input type="button" id="homeButton" value="Home">
-	<div id="currentPath"></div>
-	<div id="directory"></div>
-	<div id="musicfiles"></div>
+	<nav class="navbar bg-primary" data-bs-theme="dark">
+		<div class="container-fluid">
+			<a class="navbar-brand" href="#">
+				<img src="icon2.png" alt="Logo" width="30" height="24" class="d-inline-block align-text-top">
+				Audiorat
+			</a>
+		</div>
+	</nav>
+	<div class="container">
+		<h4 class="pt-3">Select a directory to view its contents:</h4>
+		<div class="d-flex gap-5 mb-3">
+			<a id="backButton" class="icon-link" href="#">
+				<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+					class="bi bi-arrow-left" viewBox="0 0 16 16">
+					<path fill-rule="evenodd"
+						d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8" />
+				</svg>
+				Back
+			</a>
+			<a id="homeButton" class="icon-link" href="#">
+				<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-house"
+					viewBox="0 0 16 16">
+					<path
+						d="M8.707 1.5a1 1 0 0 0-1.414 0L.646 8.146a.5.5 0 0 0 .708.708L2 8.207V13.5A1.5 1.5 0 0 0 3.5 15h9a1.5 1.5 0 0 0 1.5-1.5V8.207l.646.647a.5.5 0 0 0 .708-.708L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293zM13 7.207V13.5a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5V7.207l5-5z" />
+				</svg>
+				Home
+			</a>
+		</div>
+		<div id="currentPath" class="pb-3"></div>
+		<div id="directory"></div>
+		<div id="musicfiles" class="fst-italic"></div>
+	</div>
 </body>
 
 </html>

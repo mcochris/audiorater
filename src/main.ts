@@ -124,7 +124,7 @@ async function listMusicFiles() {
 	musicFilesDiv.textContent = "";
 
 	if (musicFiles.length === 0) {
-		musicFilesDiv.textContent = "No music files";
+		musicFilesDiv.textContent = "No music files in this directory.";
 		return;
 	}
 
