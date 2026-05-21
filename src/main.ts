@@ -6,6 +6,10 @@ import {
 	getCurrentWindow,
 } from "@tauri-apps/api/window";
 
+import "bootstrap/dist/css/bootstrap.min.css";
+// @ts-expect-error - bootstrap doesn't have type definitions
+import * as bootstrap from "bootstrap";
+
 const directoryDiv = document.querySelector("#directory") as HTMLDivElement;
 const currentPathDiv = document.querySelector("#currentPath") as HTMLDivElement;
 const backButton = document.querySelector("#backButton") as HTMLInputElement;
