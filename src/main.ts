@@ -258,7 +258,8 @@ async function initializeApp() {
 
 	homeDirectory = await invoke("get_home_directory") as string;
 	pathSeparator = await invoke("get_path_separator") as string;
-	path = homeDirectory;
+	const favDir = localStorage.getItem("favoriteDirectory") || "";
+	path = favDir ? favDir : homeDirectory;
 	await listDirectories();
 }
 
