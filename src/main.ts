@@ -7,6 +7,7 @@ import {
 } from "@tauri-apps/api/window";
 
 import "bootstrap/dist/css/bootstrap.min.css";
+import "bootstrap-icons/font/bootstrap-icons.css";
 import "tabulator-tables/dist/css/tabulator.min.css";
 import "tabulator-tables/dist/css/tabulator_bootstrap5.min.css";
 // @ts-expect-error - bootstrap doesn't have type definitions
@@ -25,6 +26,7 @@ let homeDirectory = "";
 let pathSeparator = "/";
 
 let path = "";
+let currentPlayingPath: string | null = null;
 
 function updateCurrentPathDisplay() {
 	const favDir = localStorage.getItem("favoriteDirectory") || "";
@@ -283,121 +285,116 @@ async function listMusicFiles() {
 		return;
 	}
 
-	// const table = await createMusicTable(musicFiles);
-	// musicFilesDiv.appendChild(table);
-
-	const tableData: { id: number; filepath: string; rating: number | false | null; clear: string }[] = [];
+	const tableData: { id: number; filepath: string; rating: number | false }[] = [];
 
 	for (const [index, filePath] of musicFiles.entries()) {
 		tableData.push({
 			id: index,
-			filepath: filePath.split(pathSeparator as string).pop() || filePath,
-			rating: await invoke<number | null | false>("get_rating", { "pathname": filePath }),
-			clear: ""
+			filepath: filePath,
+			rating: await invoke<number | false>("get_rating", { "pathname": filePath }),
 		});
 	}
 
-	var table = new Tabulator("#musicfiles", {
-		data: tableData, //assign data to table
-		autoColumns: true, //create columns from data field names
+	new Tabulator("#musicfiles", {
+		data: tableData,
+		columns: [
+			{ title: "ID", field: "id", visible: false },
+			{ title: "File (click to play/stop)", field: "filepath", formatter: pathNameFormatter },
+			{ title: "Rating", field: "rating", formatter: ratingFormatter, headerSort: false, minWidth: 150 }
+		]
 	});
 
+	function pathNameFormatter(cell: Tabulator.CellComponent) {
+		const filePath = cell.getValue() as string;
+		const fileName = filePath.split(pathSeparator as string).pop() || filePath;
+		const link = document.createElement("a");
+
+		link.textContent = fileName;
+		link.href = "#";
+		link.addEventListener("click", async (event) => {
+			event.preventDefault();
+
+			if (currentPlayingPath === filePath) {
+				await stopMusic();
+				currentPlayingPath = null;
+				return;
+			}
+
+			await playMusic(filePath);
+			currentPlayingPath = filePath;
+		});
+
+		return link;
+	}
+
+	function ratingFormatter(cell: Tabulator.CellComponent) {
+		const rowData = cell.getRow().getData() as { filepath: string; rating: number | false };
+		const filePath = rowData.filepath;
+		const wrapper = document.createElement("div");
+
+		wrapper.className = "d-flex align-items-center gap-1";
+
+		function renderRating(rating: number | false) {
+			wrapper.replaceChildren();
+
+			for (let starNumber = 1; starNumber <= 5; starNumber++) {
+				const starButton = document.createElement("button");
+				const starIcon = document.createElement("i");
+				const isFilled = rating !== false && starNumber <= rating;
+
+				starButton.type = "button";
+				starButton.className = "btn btn-link p-0 border-0";
+				starButton.style.color = "#d4af37";
+				starButton.title = `Rate ${starNumber}`;
+				starButton.setAttribute("aria-label", `Rate ${starNumber} star${starNumber === 1 ? "" : "s"}`);
+
+				starIcon.className = `bi ${isFilled ? "bi-star-fill" : "bi-star"}`;
+				starButton.appendChild(starIcon);
+
+				starButton.addEventListener("click", async (event) => {
+					event.preventDefault();
+					event.stopPropagation();
+
+					await rateMusic(filePath, starNumber);
+					rowData.rating = starNumber;
+					renderRating(starNumber);
+				});
+
+				wrapper.appendChild(starButton);
+			}
+
+			if (rating !== false) {
+				const clearButton = document.createElement("button");
+				const clearIcon = document.createElement("i");
+
+				clearButton.type = "button";
+				clearButton.className = "btn btn-link p-0 border-0 ms-2";
+				clearButton.style.color = "#dc3545";
+				clearButton.dataset.action = "clear-rating";
+				clearButton.dataset.filePath = filePath;
+				clearButton.title = "Clear rating";
+				clearButton.setAttribute("aria-label", "Clear rating");
+				clearIcon.className = "bi bi-trash-fill";
+
+				clearButton.appendChild(clearIcon);
+				clearButton.addEventListener("click", async (event) => {
+					event.preventDefault();
+					event.stopPropagation();
+
+					await clearRating(filePath);
+					rowData.rating = false;
+					renderRating(false);
+				});
+
+				wrapper.appendChild(clearButton);
+			}
+		}
+
+		renderRating(cell.getValue() as number | false);
+
+		return wrapper;
+	}
 }
-
-//=============================================================================
-// Create a table to display music files with play buttons and rating options
-// This function generates a table where each row represents a music file, with a play button and rating radio buttons
-//=============================================================================
-// async function createMusicTable(musicFiles: string[]) {
-// 	const table = document.createElement("table");
-// 	const tbody = document.createElement("tbody");
-
-// 	for (const [index, filePath] of musicFiles.entries()) {
-// 		const tr = document.createElement("tr");
-
-// 		//
-// 		// Column 1: Play button
-// 		//
-// 		const playTd = document.createElement("td");
-
-// 		const playButton = document.createElement("button");
-
-// 		playButton.classList.add("play-button");
-// 		playButton.dataset.action = "play-toggle";
-// 		playButton.dataset.filePath = filePath;
-
-// 		playButton.textContent = "Play";
-// 		playButton.type = "button";
-
-// 		playTd.appendChild(playButton);
-
-// 		//
-// 		// Column 2: Rating radio buttons + Clear button
-// 		//
-// 		const ratingTd = document.createElement("td");
-
-// 		for (let rating = 1; rating <= 5; rating++) {
-// 			const label = document.createElement("label");
-// 			const radio = document.createElement("input");
-
-// 			radio.type = "radio";
-// 			radio.name = `rating-${index}`;
-// 			radio.value = String(rating);
-// 			radio.dataset.filePath = filePath;
-// 			radio.dataset.rating = String(rating);
-
-// 			// Get the current rating for this file and set the radio button if it matches
-// 			// const fileSize = await invoke("get_file_size", { "pathname": filePath });
-// 			// const lastModified = await invoke("get_modified_time", { "pathname": filePath });
-
-// 			await invoke<number | null | false>("get_rating", { "pathname": filePath }).then((currentRating) => {
-// 				if (currentRating === rating) {
-// 					radio.checked = true;
-// 				}
-// 			});
-
-// 			label.appendChild(radio);
-
-// 			label.appendChild(
-// 				document.createTextNode(` ${rating} `)
-// 			);
-
-// 			ratingTd.appendChild(label);
-// 		}
-
-// 		//
-// 		// Clear button
-// 		//
-// 		const clearButton = document.createElement("button");
-
-// 		clearButton.textContent = "Clear";
-// 		clearButton.type = "button";
-// 		clearButton.dataset.action = "clear-rating";
-// 		clearButton.dataset.filePath = filePath;
-
-// 		ratingTd.appendChild(clearButton);
-
-// 		//
-// 		// Column 3: File pathname
-// 		//
-// 		const fileTd = document.createElement("td");
-
-// 		fileTd.textContent = filePath.split(pathSeparator as string).pop() || filePath;
-
-// 		//
-// 		// Assemble row
-// 		//
-// 		tr.appendChild(playTd);
-// 		tr.appendChild(ratingTd);
-// 		tr.appendChild(fileTd);
-
-// 		tbody.appendChild(tr);
-// 	}
-
-// 	table.appendChild(tbody);
-
-// 	return table;
-// }
 
 //=============================================================================
 // Play and stop music functions
