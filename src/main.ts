@@ -8,6 +8,7 @@ import {
 
 import "bootstrap/dist/css/bootstrap.min.css";
 import "tabulator-tables/dist/css/tabulator.min.css";
+import "tabulator-tables/dist/css/tabulator_bootstrap5.min.css";
 // @ts-expect-error - bootstrap doesn't have type definitions
 import * as bootstrap from "bootstrap";
 // @ts-expect-error - bootstrap doesn't have type definitions
@@ -290,7 +291,7 @@ async function listMusicFiles() {
 	for (const [index, filePath] of musicFiles.entries()) {
 		tableData.push({
 			id: index,
-			filepath: filePath,
+			filepath: filePath.split(pathSeparator as string).pop() || filePath,
 			rating: await invoke<number | null | false>("get_rating", { "pathname": filePath }),
 			clear: ""
 		});
