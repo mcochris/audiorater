@@ -7,7 +7,7 @@ use std::fs;
 use std::fs::File;
 use std::io::BufReader;
 use std::path::{Path, PathBuf};
-use std::sync::Mutex;
+use std::sync::{Mutex};
 use std::time::{SystemTime, UNIX_EPOCH};
 use symphonia::core::audio::SampleBuffer;
 use symphonia::core::codecs::DecoderOptions;
@@ -22,6 +22,11 @@ struct AudioState {
     stream: Mutex<Option<OutputStream>>,
     sink: Mutex<Option<Sink>>,
 }
+
+// OutputStream on macOS (CoreAudio) contains a non-Send callback, but access
+// is serialized by the Mutex and the stream lives on its own internal thread.
+unsafe impl Send for AudioState {}
+unsafe impl Sync for AudioState {}
 
 // use tauri::{image::Image, tray::TrayIconBuilder, Manager};
 
