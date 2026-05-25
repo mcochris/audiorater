@@ -281,6 +281,7 @@ async function listMusicFiles() {
 	musicFilesDiv.textContent = "";
 
 	if (musicFiles.length === 0) {
+		musicFilesDiv.style.fontStyle = "italic";
 		musicFilesDiv.textContent = "No music files in this directory.";
 		return;
 	}
