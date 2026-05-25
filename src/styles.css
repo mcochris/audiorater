@@ -8,6 +8,14 @@
 	columns: 250px;
 }
 
+html[data-bs-theme="dark"] .tabulator .tabulator-header .tabulator-col:hover {
+	background-color: slategray !important;
+}
+
+html[data-bs-theme="dark"] .tabulator .tabulator-header .tabulator-col:hover .tabulator-col-content {
+	background-color: transparent;
+}
+
 /*
 html {
 	font-family: sans-serif;
