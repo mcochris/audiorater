@@ -10,3 +10,12 @@ html[data-bs-theme="dark"] .tabulator .tabulator-header .tabulator-col:hover {
 html[data-bs-theme="dark"] .tabulator .tabulator-header .tabulator-col:hover .tabulator-col-content {
 	background-color: transparent;
 }
+
+#database-icon {
+	cursor: pointer;
+	margin-top: 1px;
+}
+
+#theme-toggle {
+	cursor: pointer;
+}

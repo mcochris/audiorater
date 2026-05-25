@@ -98,6 +98,15 @@ fn create_database(app: tauri::AppHandle) -> Result<(), String> {
 
 #[tauri::command]
 //=============================================================================
+// Get the path to the ratings database
+//=============================================================================
+fn get_database_path(app: tauri::AppHandle) -> Result<String, String> {
+    ratings_database_path(&app)
+        .map(|path| path.to_string_lossy().into_owned())
+}
+
+#[tauri::command]
+//=============================================================================
 // Get the path separator for the current platform (e.g., '/' on Unix, '\' on Windows)
 //=============================================================================
 fn get_path_separator() -> String {
@@ -458,6 +467,7 @@ pub fn run() {
             rate_music_file,
             clear_rating,
             create_database,
+            get_database_path,
             get_music_files,
             get_path_separator,
             play_music_file,

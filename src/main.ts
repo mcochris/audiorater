@@ -419,3 +419,50 @@ async function rateMusic(pathname: string, rating: number) {
 async function clearRating(pathname: string) {
 	await invoke("clear_rating", { "pathname": pathname });
 }
+
+//=============================================================================
+// Show an alert with the database path when the database icon is clicked
+//=============================================================================
+function showDatabasePathAlert(message: string) {
+	let alertContainer = document.getElementById("database-path-alert-container") as HTMLDivElement | null;
+
+	if (!alertContainer) {
+		alertContainer = document.createElement("div") as HTMLDivElement;
+		alertContainer.id = "database-path-alert-container";
+		alertContainer.className = "container mt-3";
+		document.body.appendChild(alertContainer);
+	}
+
+	alertContainer.innerHTML = "";
+
+	const alertElement = document.createElement("div") as HTMLDivElement;
+	alertElement.className = "alert alert-info alert-dismissible fade show";
+	alertElement.role = "alert";
+	alertElement.textContent = message;
+
+	const closeButton = document.createElement("button") as HTMLButtonElement;
+	closeButton.type = "button";
+	closeButton.className = "btn-close";
+	closeButton.setAttribute("data-bs-dismiss", "alert");
+	closeButton.setAttribute("aria-label", "Close");
+	closeButton.addEventListener("click", () => {
+		alertElement.remove();
+
+		if (alertContainer && alertContainer.childElementCount === 0) {
+			alertContainer.remove();
+		}
+	});
+
+	alertElement.appendChild(closeButton);
+	alertContainer.appendChild(alertElement);
+}
+
+//=============================================================================
+// Event listener for database icon click to show database path alert
+//=============================================================================
+const btn = document.getElementById('database-icon') as HTMLDivElement;
+btn.addEventListener('click', async () => {
+	const databasePath = await invoke("get_database_path") as string;
+	showDatabasePathAlert(`The project database is located at ${databasePath}`);
+	console.log(`Database path: ${databasePath}`);
+});
